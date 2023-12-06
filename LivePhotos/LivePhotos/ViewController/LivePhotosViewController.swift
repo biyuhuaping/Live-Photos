@@ -37,7 +37,7 @@ class LivePhotosViewController: UIViewController {
     
     /// NavagationItem's segmentedControl, switch between disassemble and assemble
     private lazy var segmentedControl = {
-        let segmentedControl = UISegmentedControl(items: ["Disassemble", "Assemble"])
+        let segmentedControl = UISegmentedControl(items: ["分解", "合成"])
         segmentedControl.backgroundColor = .gray.withAlphaComponent(0.1)
         segmentedControl.addAction(UIAction(handler: { [weak self] _ in
             guard let self else { return }
@@ -46,10 +46,7 @@ class LivePhotosViewController: UIViewController {
         return segmentedControl
     }()
     
-    /// NavagationItem's icon, shows whether it is currently disassemble or assemble
-    private var iconImageView = UIImageView()
-    
-    /// The main Button at the bottom, for Live Photo selection or synthesis
+    // 底部的主按钮，用于现场照片选择或合成
     private lazy var mainButton = {
         var config = UIButton.Configuration.filled()
         config.buttonSize = .large
@@ -67,10 +64,10 @@ class LivePhotosViewController: UIViewController {
             let color: UIColor
             switch(self.style.value) {
             case .disassemble:
-                title = "Pick A Live Photo"
+                title = "选择LivePhoto"
                 color = .systemBlue
             case .assemble:
-                title = "Save the Live Photo"
+                title = "保存LivePhoto"
                 color = .systemPink
             }
             button.configuration?.title = title
@@ -88,7 +85,7 @@ class LivePhotosViewController: UIViewController {
         return button
     }()
     
-    /// Live Photo Display Container
+    // Live Photo 实时照片显示容器
     let livePhotoView = {
         let livePhotoView = PHLivePhotoView()
         livePhotoView.backgroundColor = .gray.withAlphaComponent(0.1)
@@ -97,7 +94,7 @@ class LivePhotosViewController: UIViewController {
         return livePhotoView
     }()
     
-    /// Icon on the Live Photo showcase container
+    // Live Photo展示容器上的图标
     private var livePhotoIcon = UIImageView()
     
     /// Photo display container
@@ -133,10 +130,10 @@ class LivePhotosViewController: UIViewController {
             let color: UIColor
             switch(self.style.value) {
             case .disassemble:
-                title = "Save Photo"
+                title = "保存照片"
                 color = .systemBlue
             case .assemble:
-                title = "Pick Photo"
+                title = "选择照片"
                 color = .systemPink
             }
             button.configuration?.title = title
@@ -170,10 +167,10 @@ class LivePhotosViewController: UIViewController {
             let color: UIColor
             switch(self.style.value) {
             case .disassemble:
-                title = "Save Video"
+                title = "保存视频"
                 color = .systemBlue
             case .assemble:
-                title = "Pick Video"
+                title = "选择视频"
                 color = .systemPink
             }
             button.configuration?.title = title
@@ -195,7 +192,6 @@ class LivePhotosViewController: UIViewController {
     
     
     // MARK: - Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -203,18 +199,16 @@ class LivePhotosViewController: UIViewController {
         setUPAuthorization()
     }
     
-    /// Adapt to light and dark mode switching
+    // 适配明暗模式切换
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         updateLivePhotoIcon()
     }
 }
 
 // MARK: - Set up and update the UI
-
 extension LivePhotosViewController {
-    
     private func setupUI() {
-        let stackView = UIStackView(arrangedSubviews: [segmentedControl, iconImageView])
+        let stackView = UIStackView(arrangedSubviews: [segmentedControl])
         stackView.spacing = 10.0
         navigationItem.titleView = stackView
         view.addSubview(mainButton)
@@ -282,7 +276,6 @@ extension LivePhotosViewController {
             progressView.bottomAnchor.constraint(equalTo: mainButton.topAnchor, constant: -20.0),
             progressView.heightAnchor.constraint(equalToConstant: 10.0)
         ])
-        
         updateLivePhotoIcon()
     }
     
@@ -302,19 +295,6 @@ extension LivePhotosViewController {
         style.sink { [weak self] style in
             guard let self else { return }
             self.segmentedControl.selectedSegmentIndex = style.rawValue
-        }.store(in: &subscriptions)
-        
-        style.sink { [weak self] style in
-            guard let self else { return }
-            let image: UIImage?
-            let config = UIImage.SymbolConfiguration(weight: .bold)
-            switch(style) {
-            case .disassemble:
-                image = UIImage(systemName: "rectangle.expand.vertical", withConfiguration: config)
-            case .assemble:
-                image = UIImage(systemName: "rectangle.compress.vertical", withConfiguration: config)
-            }
-            self.iconImageView.image = image?.withTintColor(.label, renderingMode: .alwaysOriginal)
         }.store(in: &subscriptions)
         
         style.sink { [weak self] style in
@@ -348,9 +328,7 @@ extension LivePhotosViewController {
 }
 
 // MARK: - Actions
-
 extension LivePhotosViewController {
-    
     private func setUPAuthorization() {
         Task {
             await PHPhotoLibrary.requestAuthorization(for: .readWrite)
@@ -382,10 +360,8 @@ extension LivePhotosViewController {
 }
 
 // MARK: - PHPickerViewControllerDelegate
-
 extension LivePhotosViewController: PHPickerViewControllerDelegate {
-    
-    /// Present `PHPickerViewController`
+    // Present `PHPickerViewController`
     func pick(_ filter: PHPickerFilter) {
         var config = PHPickerConfiguration()
         config.filter = filter
