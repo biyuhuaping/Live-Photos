@@ -25,7 +25,7 @@ extension LivePhotosViewController {
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: photoURL)
         }, completionHandler: { success, error in
-            Toast.show("\(success ? "Saved successfully" : "Save failed")")
+            Toast.show("\(success ? "保存成功" : "保存失败")")
         })
     }
     
@@ -38,20 +38,20 @@ extension LivePhotosViewController {
         PHPhotoLibrary.shared().performChanges({
             PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
         }, completionHandler: { success, error in
-            Toast.show("\(success ? "Saved successfully" : "Save failed")")
+            Toast.show("\(success ? "保存成功" : "保存失败")")
         })
     }
     
     func disassemblePicker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         guard let itemProvider = results.first?.itemProvider,
               itemProvider.canLoadObject(ofClass: PHLivePhoto.self) else {
-            Toast.show("Pick failed")
+            Toast.show("选取失败")
             return
         }
         itemProvider.loadObject(ofClass: PHLivePhoto.self) { [weak self] livePhoto, _ in
             Task { @MainActor in
                 guard let self, let livePhoto = livePhoto as? PHLivePhoto else {
-                    Toast.show("Load failed")
+                    Toast.show("加载失败")
                     return
                 }
                 self.livePhotoView.livePhoto = livePhoto
@@ -67,22 +67,24 @@ extension LivePhotosViewController {
         self.progressView.progress = 0
         Task {
             do {
-                // Disassemble the livePhoto
+                // 分解 livePhoto
                 let (photoURL, videoURL) = try await LivePhotos.sharedInstance.disassemble(livePhoto: livePhoto)
                 await MainActor.run {  self.progressView.progress = 1 }
                 self.photoURL.send(photoURL)
                 self.videoURL.send(videoURL)
+                
                 // Show the photo
                 if FileManager.default.fileExists(atPath: photoURL.path) {
                     guard let photo = UIImage(contentsOfFile: photoURL.path) else { return }
                     await MainActor.run { leftImageView.image = photo }
                 }
+                
                 // show the video
                 if FileManager.default.fileExists(atPath: videoURL.path) {
                     playVideo(URL(fileURLWithPath: videoURL.path))
                 }
             } catch {
-                await MainActor.run { Toast.show("Disassemble failed") }
+                await MainActor.run { Toast.show("拆解失败") }
             }
         }
     }

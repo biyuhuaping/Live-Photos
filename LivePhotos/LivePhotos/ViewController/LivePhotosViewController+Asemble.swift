@@ -23,7 +23,7 @@ extension LivePhotosViewController {
             creationRequest.addResource(with: PHAssetResourceType.photo, fileURL: photoURL, options: options)
             creationRequest.addResource(with: PHAssetResourceType.pairedVideo, fileURL: videURL, options: options)
         }, completionHandler: { success, _ in
-            Toast.show(success ? "Saved successfully" : "An error occurred")
+            Toast.show(success ? "保存成功" : "出现错误")
         })
     }
     
@@ -53,7 +53,7 @@ extension LivePhotosViewController {
                     try photo.pngData()?.write(to: targetURL)
                     self.photoURL.send(targetURL)
                 } catch {
-                    Toast.show("An error occurred")
+                    Toast.show("出现错误")
                 }
             }
         } else if itemProvider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
@@ -68,7 +68,7 @@ extension LivePhotosViewController {
                     self.videoURL.send(targetURL)
                     self.playVideo(targetURL)
                 } catch {
-                    Toast.show("An error occurred")
+                    Toast.show("出现错误")
                 }
             }
         }
